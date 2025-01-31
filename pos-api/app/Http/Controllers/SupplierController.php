@@ -2,65 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Supplier;
 use App\Http\Requests\StoreSupplierRequest;
 use App\Http\Requests\UpdateSupplierRequest;
+use App\Interfaces\SupplierRepositoryInterface;
+use App\Classes\ApiResponseClass;
+use App\Http\Resources\SupplierResource;
+use Illuminate\Support\Facades\DB;
 
 class SupplierController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private SupplierRepositoryInterface $supplierRepositoryInterface;
+
+    public function __construct(SupplierRepositoryInterface $supplierRepositoryInterface)
+    {
+        $this->supplierRepositoryInterface = $supplierRepositoryInterface;
+    }
+
     public function index()
     {
-        //
+        $data = $this->supplierRepositoryInterface->index();
+        return ApiResponseClass::sendResponse(SupplierResource::collection($data), '', 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreSupplierRequest $request)
     {
-        //
+        $details = [
+            'name' => $request->name,
+            'contact_info' => $request->contact_info,
+            'address' => $request->address,
+        ];
+        DB::beginTransaction();
+        try {
+            $supplier = $this->supplierRepositoryInterface->store($details);
+            DB::commit();
+            return ApiResponseClass::sendResponse(new SupplierResource($supplier), 'Supplier Created Successfully', 201);
+        } catch (\Exception $ex) {
+            return ApiResponseClass::rollback($ex);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Supplier $supplier)
+    public function show($id)
     {
-        //
+        $supplier = $this->supplierRepositoryInterface->getById($id);
+        return ApiResponseClass::sendResponse(new SupplierResource($supplier), '', 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Supplier $supplier)
+    public function update(UpdateSupplierRequest $request, $id)
     {
-        //
+        $updateDetails = [
+            'name' => $request->name,
+            'contact_info' => $request->contact_info,
+            'address' => $request->address,
+        ];
+
+        DB::beginTransaction();
+        try {
+            $this->supplierRepositoryInterface->update($updateDetails, $id);
+            DB::commit();
+            return ApiResponseClass::sendResponse('Supplier Updated Successfully', '', 201);
+        } catch (\Exception $ex) {
+            return ApiResponseClass::rollback($ex);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSupplierRequest $request, Supplier $supplier)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Supplier $supplier)
-    {
-        //
+        $this->supplierRepositoryInterface->delete($id);
+        return ApiResponseClass::sendResponse('Supplier Deleted Successfully', '', 204);
     }
 }

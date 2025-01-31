@@ -27,11 +27,17 @@ class ProductController extends Controller
     }
 
 
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request): ?\Illuminate\Http\JsonResponse
     {
+
+//        dd($request->all());
         $details =[
             'name' => $request->name,
-            'details' => $request->details
+            'sku' => $request->sku,
+            'price' => $request->price,
+            'category_id'=>$request->category_id,
+            'initial_stock_quantity'=>$request->initial_stock_quantity,
+            'current_stock_quantity'=>$request->current_stock_quantity,
         ];
         DB::beginTransaction();
         try{
@@ -57,9 +63,14 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, $id)
     {
+
         $updateDetails =[
             'name' => $request->name,
-            'details' => $request->details
+            'sku' => $request->sku,
+            'price' => $request->price,
+            'category_id'=>$request->category_id,
+            'initial_stock_quantity'=>$request->initial_stock_quantity,
+            'current_stock_quantity'=>$request->current_stock_quantity,
         ];
         DB::beginTransaction();
         try{

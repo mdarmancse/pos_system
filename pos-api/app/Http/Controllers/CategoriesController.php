@@ -2,65 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categories;
-use App\Http\Requests\StoreCategoriesRequest;
-use App\Http\Requests\UpdateCategoriesRequest;
+
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
+use App\Interfaces\CategoryRepositoryInterface;
+use App\Classes\ApiResponseClass;
+use App\Http\Resources\CategoryResource;
+use Illuminate\Support\Facades\DB;
 
 class CategoriesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private CategoryRepositoryInterface $categoryRepositoryInterface;
+
+    public function __construct(CategoryRepositoryInterface $categoryRepositoryInterface)
+    {
+        $this->categoryRepositoryInterface = $categoryRepositoryInterface;
+    }
+
     public function index()
     {
-        //
+        $data = $this->categoryRepositoryInterface->index();
+        return ApiResponseClass::sendResponse(CategoryResource::collection($data), '', 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreCategoryRequest $request)
     {
-        //
+        $details = [
+            'name' => $request->name,
+            'description' => $request->description,
+        ];
+        DB::beginTransaction();
+        try {
+            $category = $this->categoryRepositoryInterface->store($details);
+            DB::commit();
+            return ApiResponseClass::sendResponse(new CategoryResource($category), 'Category Created Successfully', 201);
+        } catch (\Exception $ex) {
+            return ApiResponseClass::rollback($ex);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreCategoriesRequest $request)
+    public function show($id)
     {
-        //
+        $category = $this->categoryRepositoryInterface->getById($id);
+        return ApiResponseClass::sendResponse(new CategoryResource($category), '', 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Categories $categories)
+    public function update(UpdateCategoryRequest $request, $id)
     {
-        //
+        $updateDetails = [
+            'name' => $request->name,
+            'description' => $request->description,
+        ];
+        DB::beginTransaction();
+        try {
+            $this->categoryRepositoryInterface->update($updateDetails, $id);
+            DB::commit();
+            return ApiResponseClass::sendResponse('Category Updated Successfully', '', 201);
+        } catch (\Exception $ex) {
+            return ApiResponseClass::rollback($ex);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Categories $categories)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCategoriesRequest $request, Categories $categories)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Categories $categories)
-    {
-        //
+        $this->categoryRepositoryInterface->delete($id);
+        return ApiResponseClass::sendResponse('Category Deleted Successfully', '', 204);
     }
 }

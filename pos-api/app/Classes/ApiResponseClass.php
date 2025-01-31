@@ -11,14 +11,10 @@ class ApiResponseClass
     /**
      * Create a new class instance.
      */
-    public function __construct()
-    {
-        //
-    }
 
     public static function rollback($e, $message ="Something went wrong! Process not completed"){
         DB::rollBack();
-        self::throw($e, $message);
+        self::throw($e, $e->getmessage());
     }
 
     public static function throw($e, $message ="Something went wrong! Process not completed"){
