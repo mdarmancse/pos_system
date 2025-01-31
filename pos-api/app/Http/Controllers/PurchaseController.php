@@ -54,7 +54,7 @@ class PurchaseController extends Controller
             DB::commit();
             return ApiResponseClass::sendResponse(new PurchaseResource($purchase), 'Purchase Created Successfully', 201);
         } catch (\Exception $ex) {
-            DB::rollBack();
+
             return ApiResponseClass::rollback($ex);
         }
     }
@@ -75,45 +75,31 @@ class PurchaseController extends Controller
     {
         DB::beginTransaction();
         try {
+
             $updateDetails = [
                 'supplier_id'   => $request->supplier_id,
                 'purchase_date' => $request->purchase_date,
                 'total_amount'  => 0,
             ];
 
-            // Update purchase order
-            $this->purchaseRepositoryInterface->update($updateDetails, $id);
-
-            $totalAmount = 0;
-            $purchaseItems = [];
-
-            $this->purchaseRepositoryInterface->deletePurchaseItems($id);
-
-            foreach ($request->purchase_items as $item) {
-                $totalPrice = $item['quantity'] * $item['unit_price'];
-                $totalAmount += $totalPrice;
-
-                $purchaseItems[] = [
-                    'purchase_id' => $id,
-                    'product_id'  => $item['product_id'],
-                    'quantity'    => $item['quantity'],
-                    'unit_price'  => $item['unit_price'],
-                    'total_price' => $totalPrice,
-                ];
-
-                $this->purchaseRepositoryInterface->updateProductStock($item['product_id'], $item['quantity']);
-            }
+            $purchase = $this->purchaseRepositoryInterface->update($updateDetails, $id);
 
 
-            $this->purchaseRepositoryInterface->storePurchaseItems($purchaseItems);
+            $items = $request->purchase_items;
 
-            $this->purchaseRepositoryInterface->updatePurchaseTotal($id, $totalAmount);
+
+            $purchase->total_amount = $this->purchaseRepositoryInterface->storePurchaseItems($items, $purchase->id);
+
+
+            $this->purchaseRepositoryInterface->updatePurchaseTotal($purchase->id, $purchase->total_amount);
+
 
             DB::commit();
-            return ApiResponseClass::sendResponse('Purchase Updated Successfully', '', 200);
 
+
+            return ApiResponseClass::sendResponse(new PurchaseResource($purchase), 'Purchase Updated Successfully', 200);
         } catch (\Exception $ex) {
-            DB::rollback();
+
             return ApiResponseClass::rollback($ex);
         }
     }
