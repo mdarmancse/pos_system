@@ -10,7 +10,7 @@ This system manages the purchasing process for products, including creating, upd
 - **Delete Purchase**: Remove purchase and its associated items from the system.
 - **Product Stock Update**: Automatically adjust product stock based on purchase quantity.
 
-## Installation
+## Installation Backend [Laravel]
 To run the application locally:
 
 1. Clone the repository:

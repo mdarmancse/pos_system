@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    use SoftDeletes;
     protected $primaryKey = 'product_id';
+
     protected $fillable = [
         'name',
         'sku',
@@ -21,4 +20,9 @@ class Product extends Model
         'current_stock_quantity',
         'category_id',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Categories::class, 'category_id', 'id');
+    }
 }

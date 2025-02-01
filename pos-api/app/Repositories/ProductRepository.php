@@ -24,7 +24,7 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function update(array $data, $id)
     {
-        $product = Product::firstOrFail($id);
+        $product = Product::where('product_id',$id)->firstOrFail();
         $product->update($data);
         return $product;
     }

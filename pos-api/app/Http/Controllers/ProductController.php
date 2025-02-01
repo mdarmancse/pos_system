@@ -60,7 +60,6 @@ class ProductController extends Controller
     }
 
 
-
     public function update(UpdateProductRequest $request, $id)
     {
 
@@ -69,15 +68,17 @@ class ProductController extends Controller
             'sku' => $request->sku,
             'price' => $request->price,
             'category_id'=>$request->category_id,
-            'initial_stock_quantity'=>$request->initial_stock_quantity,
-            'current_stock_quantity'=>$request->current_stock_quantity,
+            'initial_stock_quantity'=>$request->initial_stock_quantity ?? 0,
+            'current_stock_quantity'=>$request->current_stock_quantity ?? 0,
         ];
         DB::beginTransaction();
         try{
             $product = $this->productRepositoryInterface->update($updateDetails,$id);
 
             DB::commit();
-            return ApiResponseClass::sendResponse('Product Update Successful','',201);
+            return ApiResponseClass::sendResponse(new ProductResource($product),'Product Update Successful',201);
+
+           // return ApiResponseClass::sendResponse('Product Update Successful','',201);
 
         }catch(\Exception $ex){
             return ApiResponseClass::rollback($ex);
@@ -89,6 +90,6 @@ class ProductController extends Controller
     {
         $this->productRepositoryInterface->delete($id);
 
-        return ApiResponseClass::sendResponse('Product Delete Successful','',204);
+        return ApiResponseClass::sendResponse('Product Delete Successful','',201);
     }
 }

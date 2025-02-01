@@ -20,7 +20,10 @@ class ProductResource extends JsonResource
             'sku'          => $this->sku,
             'price'        => $this->price,
             'category_id'  => $this->category_id,
+            'category'     => new CategoryResource($this->category),
             'current_stock_quantity' => $this->current_stock_quantity,
+            'initial_stock_quantity' => $this->initial_stock_quantity,
         ];
     }
+
 }
