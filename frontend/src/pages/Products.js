@@ -6,6 +6,11 @@ import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import AdminLayout from "../layouts/AdminLayout";
 import ProductFormModal from "../components/ProductFormModal";
 import { toast } from "react-toastify";
+import $ from "jquery";
+import "datatables.net-bs5";
+import "datatables.net-responsive";
+import "datatables.net-responsive-bs5";
+
 
 const Products = () => {
     const dispatch = useDispatch();
@@ -14,6 +19,25 @@ const Products = () => {
     useEffect(() => {
         dispatch(fetchProducts());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (products.data && products.data.length > 0) {
+            setTimeout(() => {
+                $("#dataTable").DataTable({
+                    destroy: true,
+                    responsive: true,
+                    paging: true,
+                    searching: true,
+                     ordering: false,
+                    autoWidth: false,
+                    language: {
+                        search: "Search:",
+                        lengthMenu: "Show _MENU_ entries",
+                    },
+                });
+            }, 500);
+        }
+    }, [products]);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -31,7 +55,7 @@ const Products = () => {
     };
 
 
-    const handleDeleteProduct = (productId) => {
+    const handleDelete = (productId) => {
         if (window.confirm("Are you sure you want to delete this product?")) {
             dispatch(deleteProduct(productId))
                 .then(() => {
@@ -63,7 +87,7 @@ const Products = () => {
             ) : productList.length === 0 ? (
                 <p>No products available.</p>
             ) : (
-                <Table striped bordered hover>
+                <Table id="dataTable" striped bordered hover responsive className="datatable">
                     <thead>
                     <tr>
                         <th>ID</th>
@@ -96,7 +120,7 @@ const Products = () => {
                                 </Button>
                                 <Button
                                     variant="danger"
-                                    onClick={() => handleDeleteProduct(product.product_id)}
+                                    onClick={() => handleDelete(product.product_id)}
                                 >
                                     <FaTrash/>
                                 </Button>

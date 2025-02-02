@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 
-const API_URL = "http://127.00.1:8000/api/products"; // Change as needed
+const API_URL = "http://127.00.1:8000/api/products";
 
 
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
@@ -88,7 +88,11 @@ const productSlice = createSlice({
 
 
             .addCase(deleteProduct.fulfilled, (state, action) => {
-                state.products.data = state.products.data.filter((product) => product.product_id !== action.payload);
+                state.loading = false;
+                const index = state.products.data.findIndex(p => p.product_id === action.payload.product_id);
+                if (index !== -1) {
+                    state.products.data[index] = action.payload;
+                }
             })
             .addCase(deleteProduct.rejected, (state) => {
                 state.loading = false;

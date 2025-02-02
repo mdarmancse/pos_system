@@ -129,7 +129,7 @@ const ProductFormModal = ({ show, handleClose, product }) => {
                         <Form.Control
                             type="number"
                             name="current_stock_quantity"
-                            value={formData.current_stock_quantity}
+                            value={product?formData.current_stock_quantity : formData.initial_stock_quantity}
                             onChange={handleChange}
                             required
                         />

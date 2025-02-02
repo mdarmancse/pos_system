@@ -9,7 +9,7 @@ const AdminLayout = ({ children }) => {
                     <Sidebar />
                 </Col>
                 <Col md={10}>
-                    <main className='p-5'>{children}</main>
+                    <main className='p-1'>{children}</main>
                 </Col>
             </Row>
         </Container>
