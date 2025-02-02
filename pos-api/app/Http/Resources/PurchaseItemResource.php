@@ -15,11 +15,11 @@ class PurchaseItemResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $product = Product::findOrfail($this->product_id);;
+
         return [
             'purchase_item_id' => $this->purchase_item_id,
             'purchase_id'      => $this->purchase_id,
-            'product'          => new ProductResource($product),
+            'product'          => new ProductResource($this->product),
             'quantity'         => $this->quantity,
             'unit_price'       => $this->unit_price,
             'total_price'      => $this->total_price,

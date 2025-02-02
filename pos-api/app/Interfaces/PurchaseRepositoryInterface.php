@@ -12,6 +12,7 @@ interface PurchaseRepositoryInterface
     public function delete($id);
 
     public function storePurchaseItems(array $items,$purchaseId);
+    public function updatePurchaseItems(array $items,$purchaseId);
     public function deletePurchaseItems($purchaseId);
 
     public function updateProductStock($productId, $quantity);

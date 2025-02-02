@@ -73,6 +73,7 @@ class PurchaseController extends Controller
      */
     public function update(UpdatePurchaseRequest $request, $id): JsonResponse
     {
+
         DB::beginTransaction();
         try {
 
@@ -82,24 +83,21 @@ class PurchaseController extends Controller
                 'total_amount'  => 0,
             ];
 
+
             $purchase = $this->purchaseRepositoryInterface->update($updateDetails, $id);
 
 
-            $items = $request->purchase_items;
 
+            $totalAmount = $this->purchaseRepositoryInterface->updatePurchaseItems($request->purchase_items, $purchase->id);
 
-            $purchase->total_amount = $this->purchaseRepositoryInterface->storePurchaseItems($items, $purchase->id);
-
-
-            $this->purchaseRepositoryInterface->updatePurchaseTotal($purchase->id, $purchase->total_amount);
-
+            // Update the total amount in the database
+            $this->purchaseRepositoryInterface->updatePurchaseTotal($purchase->id, $totalAmount);
 
             DB::commit();
 
-
             return ApiResponseClass::sendResponse(new PurchaseResource($purchase), 'Purchase Updated Successfully', 200);
         } catch (\Exception $ex) {
-
+            DB::rollBack();
             return ApiResponseClass::rollback($ex);
         }
     }

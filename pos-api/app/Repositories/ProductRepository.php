@@ -9,7 +9,7 @@ class ProductRepository implements ProductRepositoryInterface
 {
     public function index()
     {
-        return Product::all();
+        return Product::latest('product_id')->get();
     }
 
     public function getById($id)
